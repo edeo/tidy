@@ -1,0 +1,172 @@
+---
+title: "basic_project"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+ 
+concept of tidy data
+ 
+Rstudio.cloud
+ 
+create a project folder
+create a data folder
+upload a csv 
+load in libraries
+```{r}
+library(tidyverse)
+
+
+```
+
+
+check the working directory, make sure it is set to the right place
+
+```{r}
+getwd()
+s
+```
+
+
+load csv into a dataframe
+```{r}
+setwd("/cloud/project/basic_project_template/data")
+
+df <- read_csv('SAFI_clean.csv')
+
+```
+```{r}
+
+spec(df)
+```
+
+
+explore the dataframe
+```{r}
+
+head(df)
+
+
+```
+
+```{r}
+
+names(df)
+
+
+```
+
+
+change the column names
+
+```{r}
+
+names(df)[7]
+
+
+```
+
+```{r}
+
+names(df)[7] <- "number_of_rooms"
+
+
+```
+
+check to makesure it worked 
+
+```{r}
+
+names(df)
+
+
+```
+
+change a column type - 
+            factors to numeric
+            factors to string
+```{r}
+
+names(df)
+
+
+```
+
+use the pipe %>% and select a group of columns
+```{r}
+
+names(df)
+
+
+```
+
+use the pipe %>% filter a column
+```{r}
+
+names(df)
+
+
+```
+
+use unique to understand the varaiables in a column 
+```{r}
+
+names(df)
+
+
+```
+
+
+create a new column using mutate
+```{r}
+
+names(df)
+
+
+```
+create a new column using mutate and if else
+```{r}
+
+names(df)
+
+
+```
+group by and summarize ( the pivot table)
+```{r}
+
+names(df)
+
+
+```
+create a visualization 
+  histogram
+  scatter plot
+
+```{r}
+
+names(df)
+
+
+```
+how to join a table
+
+```{r}
+
+names(df)
+
+
+```
+put it together with R markdown 
+  render a document
+```{r}
+
+names(df)
+
+
+```
+
+            
