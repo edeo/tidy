@@ -1,0 +1,29 @@
+start_here
+========================================================
+author: 
+date: 
+autosize: true
+
+First Slide
+========================================================
+
+
+
+- Open the data_carp_file.Rmd, Follow along and run the R chunks
+- When get to the exercise part of the file, put your answer in the blank R chunk
+- use the exercises.Rpres file to check your solution
+
+
+Slide With Code
+========================================================
+
+```{r}
+summary(cars)
+```
+
+Slide With Plot
+========================================================
+
+```{r, echo=FALSE}
+plot(cars)
+```

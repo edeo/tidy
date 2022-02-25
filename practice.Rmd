@@ -8,165 +8,260 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## R Markdown
- 
+
+Welcome !
+
+This R markdown file will walk you through the steps of taking a csv file, reading it into R, and then using the tidyverse library to explore the data and ultimately create an output about the data.
+
+The goal is to supplement the 
+
+Here is the information from the Dataset that we will use:
+
+
+SAFI (Studying African Farmer-Led Irrigation) is a currently running project which is looking at farming and irrigation methods. This is survey data relating to households and agriculture in Tanzania and Mozambique. The survey data was collected through interviews conducted between November 2016 and June 2017 using forms downloaded to Android Smartphones. The survey forms were created using the ODK (Open Data Kit) software via an Excel spreadsheet. The collected data is then sent back to a central server. The server can be used to download the collected data in both JSON and CSV formats. This is a teaching version of the collected data that we will be using. It is not the full dataset.
+
+The survey covered such things as; household features (e.g. construction materials used, number of household members), agricultural practices (e.g. water usage), assets (e.g. number and types of livestock) and details about the household members.
+
+The basic teaching dataset used in these lessons is a JSON formatted dataset which is used directly in the Python lesson. For the other lessons a subset of the JSON dataset is used and has been converted into CSV format.
+
+The individual fields and the survey questions asked to produce the data in the CSV formatted version are given below. We will only reference a subset of the fields in the lessons.
+
+
 concept of tidy data
- 
 Rstudio.cloud
- 
 create a project folder
 create a data folder
 upload a csv 
+
+
 load in libraries
-```{r}
+
+In the box below, type the following code, and run the code chunk:
+
+## load the tidyverse
 library(tidyverse)
+library(here)
+
+interviews <- read_csv(here("data", "SAFI_clean.csv"), na = "NULL")
+
+## inspect the data
+interviews
+
+## preview the data
+# view(interviews)
+
+```{r}
+## load the tidyverse
+library(tidyverse)
+library(here)
+
+interviews <- read_csv(here("data", "SAFI_clean.csv"), na = "NULL")
+
+## inspect the data
+interviews
+
+## preview the data
+# view(interviews)
 
 
 ```
 
 
-check the working directory, make sure it is set to the right place
+# to select columns throughout the dataframe
+select(interviews, village, no_membrs, months_lack_food)
+
+
 
 ```{r}
-getwd()
-s
+select(interviews,village,no_membrs,months_lack_food)
+```
+
+# to do the same thing with subsetting
+interviews[c("village","no_membrs","months_lack_food")]
+
+```{r}
+select(interviews,village,no_membrs,months_lack_food)
+```
+
+# to select a series of connected columns
+select(interviews, village:respondent_wall_type)
+```{r}
+select(interviews,village,no_membrs,months_lack_food)
 ```
 
 
 load csv into a dataframe
 ```{r}
-setwd("/cloud/project/basic_project_template/data")
-
-df <- read_csv('SAFI_clean.csv')
-
-```
-```{r}
-
-spec(df)
-```
-
-
-explore the dataframe
-```{r}
-
-head(df)
-
+# filters observations where village name is "Chirodzo" 
+filter(interviews, village == "Chirodzo")
 
 ```
+
+# filters observations with "and" operator (comma)
+# output dataframe satisfies ALL specified conditions
+filter(interviews, village == "Chirodzo", 
+                   rooms > 1, 
+                   no_meals > 2)
 
 ```{r}
+# filters observations with "and" operator (comma)
+# output dataframe satisfies ALL specified conditions
+filter(interviews, village == "Chirodzo", 
+                   rooms > 1, 
+                   no_meals > 2)
+```
 
-names(df)
+
+# filters observations with "&" logical operator
+# output dataframe satisfies ALL specified conditions
+filter(interviews, village == "Chirodzo" & 
+                   rooms > 1 & 
+                   no_meals > 2)
+```{r}
+# filters observations with "&" logical operator
+# output dataframe satisfies ALL specified conditions
+filter(interviews, village == "Chirodzo" & 
+                   rooms > 1 & 
+                   no_meals > 2)
+```
+
+In an “or” statement, observations must meet at least one of the specified conditions. To form “or” statements we use the logical operator for “or,” which is the vertical bar (|):
+
+
+# filters observations with "|" logical operator
+# output dataframe satisfies AT LEAST ONE of the specified conditions
+filter(interviews, village == "Chirodzo" | village == "Ruaca")
+```{r}
+
+
 
 
 ```
 
 
-change the column names
+
+############################
+
+# Pipes
+
+What if you want to select and filter at the same time? There are three
+ways to do this: use intermediate steps, nested functions, or pipes.
+
+With intermediate steps, you create a temporary dataframe and use
+that as input to the next function, like this:
+
+interviews2 <- filter(interviews, village == "Chirodzo")
+interviews_ch <- select(interviews2, village:respondent_wall_type)
+
+```{r, purl = FALSE}
+
+
+```
+
+This is readable, but can clutter up your workspace with lots of objects that
+you have to name individually. With multiple steps, that can be hard to keep
+track of.
+
+You can also nest functions (i.e. one function inside of another), like this:
+
+
+
+```{r}
+interviews_ch <- select(filter(interviews, village == "Chirodzo"),
+                         village:respondent_wall_type)
+```
+
+This is handy, but can be difficult to read if too many functions are nested, as
+R evaluates the expression from the inside out (in this case, filtering, then
+selecting).
+
+The last option, *pipes*, are a recent addition to R. Pipes let you take the
+output of one function and send it directly to the next, which is useful when
+you need to do many things to the same dataset. Pipes in R look like `%>%` and
+are made available via the **`magrittr`** package, installed automatically with
+**`dplyr`**. If you use RStudio, you can type the pipe with:  
+- <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> if you have a PC or <kbd>Cmd</kbd> +
+<kbd>Shift</kbd> + <kbd>M</kbd> if you have a Mac.
+
+```{r, purl = FALSE}
+interviews %>%
+    filter(village == "Chirodzo") %>%
+    select(village:respondent_wall_type)
+```
+
+In the above code, we use the pipe to send the `interviews` dataset first
+through `filter()` to keep rows where `village` is "Chirodzo", then through
+`select()` to keep only the `no_membrs` and `years_liv` columns. Since `%>%`
+takes the object on its left and passes it as the first argument to the function
+on its right, we don't need to explicitly include the dataframe as an argument
+to the `filter()` and `select()` functions any more.
+
+Some may find it helpful to read the pipe like the word "then". For instance,
+in the above example, we take the dataframe `interviews`, *then* we `filter`
+for rows with `village == "Chirodzo"`, *then* we `select` columns `no_membrs` and
+`years_liv`. The **`dplyr`** functions by themselves are somewhat simple,
+but by combining them into linear workflows with the pipe, we can accomplish
+more complex data wrangling operations.
+
+If we want to create a new object with this smaller version of the data, we
+can assign it a new name:
+
+```{r, purl = FALSE}
+interviews_ch <- interviews %>%
+    filter(village == "Chirodzo") %>%
+    select(village:respondent_wall_type)
+interviews_ch
+```
+
+Note that the final dataframe (`interviews_ch`) is the leftmost part of this
+expression.
+
+## Exercise
+
+  Using pipes, subset the `interviews` data to include interviews
+ where respondents were members of an irrigation association
+ (`memb_assoc`) and retain only the columns `affect_conflicts`,
+ `liv_count`, and `no_meals`.
 
 ```{r}
 
-names(df)[7]
 
 
 ```
 
-```{r}
+Frequently you'll want to create new columns based on the values in existing
+columns, for example to do unit conversions, or to find the ratio of values in
+two columns. For this we'll use `mutate()`.
 
-names(df)[7] <- "number_of_rooms"
+We might be interested in the ratio of number of household members
+to rooms used for sleeping (i.e. avg number of people per room):
 
-
+```{r, purl = FALSE}
+interviews %>%
+    mutate(people_per_room = no_membrs / rooms)
 ```
 
-check to makesure it worked 
+We may be interested in investigating whether being a member of an
+irrigation association had any effect on the ratio of household members
+to rooms. To look at this relationship, we will first remove
+data from our dataset where the respondent didn't answer the
+question of whether they were a member of an irrigation association.
+These cases are recorded as "NULL" in the dataset.
 
-```{r}
+To remove these cases, we could insert a `filter()` in the chain:
 
-names(df)
-
-
-```
-
-change a column type - 
-            factors to numeric
-            factors to string
-```{r}
-
-names(df)
-
-
-```
-
-use the pipe %>% and select a group of columns
-```{r}
-
-names(df)
-
-
-```
-
-use the pipe %>% filter a column
-```{r}
-
-names(df)
-
-
-```
-
-use unique to understand the varaiables in a column 
-```{r}
-
-names(df)
-
-
+```{r, purl = FALSE}
+interviews %>%
+    filter(!is.na(memb_assoc)) %>%
+    mutate(people_per_room = no_membrs / rooms)
 ```
 
 
-create a new column using mutate
-```{r}
-
-names(df)
 
 
-```
-create a new column using mutate and if else
-```{r}
-
-names(df)
 
 
-```
-group by and summarize ( the pivot table)
-```{r}
-
-names(df)
 
 
-```
-create a visualization 
-  histogram
-  scatter plot
-
-```{r}
-
-names(df)
 
 
-```
-how to join a table
-
-```{r}
-
-names(df)
-
-
-```
-put it together with R markdown 
-  render a document
-```{r}
-
-names(df)
-
-
-```
-
-            
